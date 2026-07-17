@@ -129,6 +129,10 @@ func Status(
 	status := extractPostgresqlStatus(ctx, cluster)
 	hibernated, _ := isHibernated(status)
 
+	// Compute size before serializing, so JSON output includes it
+	clusterSize, _ := status.getClusterSize(ctx, clientInterface, timeout)
+	status.TotalClusterSize = clusterSize
+
 	err = plugin.Print(status, format, os.Stdout)
 	if err != nil || format != plugin.OutputFormatText {
 		return err
